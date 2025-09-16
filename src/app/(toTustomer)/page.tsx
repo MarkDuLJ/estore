@@ -2,6 +2,7 @@ import { ProductCard, ProductCardSkeleton, ProductSkeletonList } from "@/compone
 import { Button } from "@/components/ui/button"
 import { db } from "@/db/db"
 import { Product } from "@/generated/prisma"
+import { cache } from "@/lib/cache"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -15,12 +16,13 @@ export default function HomePage(){
     </main>
 }
 
-type ProductGridSectionProps = {
-    title: string,
-    productsFetcher: () => Promise<Product[]>
-}
+export type ProductsFetcherProps = () => Promise<Product[]>
 
-const ProductGridSection = async ({title, productsFetcher}: ProductGridSectionProps) => {
+
+const ProductGridSection = async ({title, productsFetcher}:{
+    title: string,
+    productsFetcher: ProductsFetcherProps
+}) => {
 
      return <div className="space-y-6">
         <div className="flex gap-4">
@@ -40,23 +42,30 @@ const ProductGridSection = async ({title, productsFetcher}: ProductGridSectionPr
     </div>
 }
 
-const ProductSuspense = async ({productsFetcher}: {productsFetcher:() => Promise<Product[]>}) => {
+export const ProductSuspense = async ({productsFetcher}: {productsFetcher: ProductsFetcherProps}) => {
      const products = await productsFetcher()
      return products.map(newProd => <ProductCard key={newProd.id}{...newProd}/>)
 }
 
-const getNewProducts = () => {
+const getNewProducts = cache(() => {
     return db.product.findMany({
         where:{ isAvailableForPurchase: true},
         orderBy:{ createdAt: 'desc'},
         take:5
     })
-}
+},['/', 'getNewProducts'], {revalidate: 60 * 60 * 24})
 
-const getFeatureProducts = () => {
+export const getFullProducts = cache(() => {
+    return db.product.findMany({
+        where:{ isAvailableForPurchase: true},
+        orderBy:{ name: 'asc'},
+    })
+},['/products', 'getFullProducts'])
+
+const getFeatureProducts = cache(() => {
     return db.product.findMany({
         where:{ isAvailableForPurchase: true},
         orderBy:{ orders: {_count:'desc'}},
         take:5
     })
-}
+})

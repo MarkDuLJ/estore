@@ -27,7 +27,7 @@ export const ProductCard = ({id, name, priceIncents=0,description, imagePath}: P
         </CardContent> 
         <CardFooter>
             <Button asChild size="lg" className="w-full">
-            <Link href="">Purchase</Link>
+            <Link href={`/products/${id}/purchase`}>Purchase</Link>
             </Button>
         </CardFooter>
     </Card>)

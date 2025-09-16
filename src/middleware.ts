@@ -22,7 +22,6 @@ const isAuthenticated = async (req: NextRequest) => {
      * authorization: 'Basic YWJjOmNkZQ=='
     */
    const [username, password] = Buffer.from(authHeader.split(" ")[1],"base64").toString().split(":")
-   console.log(username, password);
    
    const validUser = process.env.ADMIN_USER;
    const validPass = process.env.ADMIN_PASS as string;

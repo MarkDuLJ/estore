@@ -47,6 +47,9 @@ export default async function AdminDashboard(){
         getUserData(),
         getProductData(),
     ]) 
+
+    console.log(salesData,userData,productData);
+    
     return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <DashboardCard title="Sales" subtitle={`${formatNumber(salesData.numberOfSales)} orders`}  body={formatCurrency(salesData.amount)}/>
         <DashboardCard title="Customer" subtitle={`${formatCurrency(userData.avgValuePerUser)} average value`}  body={formatNumber(userData.userCount)}/>
